@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>演習室 巡回ダッシュボード</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f4;--surf:#fff;--ink:#17211e;--sub:#5d6b66;--line:#d9e0dd;--ok:#0f7b5f;--okbg:#e1f3ec;--cls:#c23a2b;--clsbg:#fbe6e3;--stale:#b26a00;--stalebg:#fdf0d8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101715;--surf:#1a2421;--ink:#e8efec;--sub:#9babA5;--line:#2c3935;--ok:#4cc9a1;--okbg:#17372d;--cls:#ff8272;--clsbg:#3b1f1b;--stale:#f0b04c;--stalebg:#3a2c12;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101715;--surf:#1a2421;--ink:#e8efec;--sub:#9babA5;--line:#2c3935;--ok:#4cc9a1;--okbg:#17372d;--cls:#ff8272;--clsbg:#3b1f1b;--stale:#f0b04c;--stalebg:#3a2c12;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6}
+main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+h1{font-size:1.35rem;margin:0;font-weight:900}
+.meta{color:var(--sub);font-size:.9rem}
+.hero{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:16px}
+.big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.big b{font-size:3.4rem;line-height:1;font-weight:900;color:var(--ok)}
+.big span{font-size:1.1rem;font-weight:700}
+.big em{font-style:normal;color:var(--sub);font-size:.95rem}
+.strip{display:grid;grid-template-columns:repeat(16,1fr);gap:4px;margin-top:16px}
+.strip i{height:28px;border-radius:4px;background:var(--ok)}
+.strip i.c{background:var(--cls)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.stat{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-size:1.6rem;font-weight:900;line-height:1.2}
+.stat small{color:var(--sub)}
+.warn{margin-top:14px;background:var(--stalebg);color:var(--stale);border-radius:10px;padding:12px 14px;font-size:.92rem;font-weight:700}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 8px}
+.bar button{font:inherit;font-size:.9rem;padding:6px 14px;border-radius:99px;border:1px solid var(--line);background:var(--surf);color:var(--ink);cursor:pointer}
+.bar button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bar button:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.grp{margin-top:18px}
+.grp h2{font-size:1rem;margin:0 0 8px;display:flex;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:4px}
+.grp h2 span{color:var(--sub);font-weight:400;font-size:.85rem}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.tile{background:var(--surf);border:1px solid var(--line);border-left:6px solid var(--ok);border-radius:8px;padding:10px 12px}
+.tile.c{border-left-color:var(--cls)}
+.tile .n{font-weight:700}
+.tile .s{display:inline-block;font-size:.8rem;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--okbg);color:var(--ok);margin:4px 0}
+.tile.c .s{background:var(--clsbg);color:var(--cls)}
+.tile .d{font-size:.85rem;color:var(--sub)}
+.tile .d b{color:var(--stale);font-size:1.05rem}
+.empty{color:var(--sub);padding:20px 0}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>演習室 巡回ダッシュボード</h1>
+  <div class="meta">取得時点:2026年11月20日 14:53(3時限)</div>
+</header>
+
+<section class="hero" aria-label="巡回可否の概要">
+  <div class="big"><b id="okN">12</b><span>室が巡回できます</span><em id="clsN">授業中 4室は巡回不可</em></div>
+  <div class="strip" id="strip" role="img" aria-label="16室の巡回可否"></div>
+</section>
+
+<div class="stats">
+  <div class="stat"><b>0 / 16</b><small>本日の巡回済み</small></div>
+  <div class="stat"><b id="avg">—</b><small>平均の未巡回日数</small></div>
+  <div class="stat"><b>366日</b><small>最長(清光会館_403)</small></div>
+</div>
+<div class="warn">⚠ 全16室で最終巡回日が約1年前です。ログの更新漏れか、記録先(GAS)の不具合の可能性があります。</div>
+
+<div class="bar" id="filters">
+  <button data-f="all" aria-pressed="true">すべて</button>
+  <button data-f="ok" aria-pressed="false">🟢 巡回可</button>
+  <button data-f="c" aria-pressed="false">🔴 授業中</button>
+</div>
+<div id="list"></div>
+</main>
+
+<script>
+const rooms=[
+["13号館_401","c","2025-11-24",361],["13号館_403","ok","2025-11-24",361],["13号館_412","ok","2025-11-24",361],
+["16号館_414","c","2025-11-24",361],["17号館_307","ok","2025-11-24",361],["22号館_101","ok","2025-11-24",361],
+["22号館_201","ok","2025-11-24",361],["23号館_1Fオンデマンドプリンター","ok","2025-11-24",361],["23号館_310","ok","2025-11-24",361],
+["23号館_413","c","2025-11-24",361],["23号館_503","ok","2025-11-24",361],["清光会館_301","ok","2025-11-24",361],
+["清光会館_302","ok","2025-11-24",361],["清光会館_303","c","2025-11-24",361],["清光会館_402","ok","2025-11-24",361],
+["清光会館_403","ok","2025-11-19",366]];
+const strip=document.getElementById("strip");
+rooms.forEach(r=>{const i=document.createElement("i");if(r[1]==="c")i.className="c";i.title=r[0];strip.appendChild(i)});
+document.getElementById("avg").textContent=Math.round(rooms.reduce((a,r)=>a+r[3],0)/rooms.length)+"日";
+function render(f){
+  const box=document.getElementById("list");box.innerHTML="";
+  const groups={};
+  rooms.filter(r=>f==="all"||r[1]===f).forEach(r=>{const [b,n]=r[0].split("_");(groups[b]=groups[b]||[]).push([n,r])});
+  const keys=Object.keys(groups);
+  if(!keys.length){box.innerHTML='<div class="empty">該当する演習室はありません。</div>';return}
+  keys.forEach(b=>{
+    const g=document.createElement("section");g.className="grp";
+    g.innerHTML=`<h2>${b}<span>${groups[b].length}室</span></h2><div class="tiles"></div>`;
+    groups[b].forEach(([n,r])=>{
+      const t=document.createElement("div");t.className="tile"+(r[1]==="c"?" c":"");
+      t.innerHTML=`<div class="n">${n}</div><div class="s">${r[1]==="c"?"🔴 授業中":"🟢 巡回可"}</div><div class="d">最終巡回 ${r[2]}<br><b>${r[3]}日前</b>・本日未巡回</div>`;
+      g.querySelector(".tiles").appendChild(t)});
+    box.appendChild(g)});
+}
+document.getElementById("filters").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  document.querySelectorAll("#filters button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  render(b.dataset.f)});
+render("all");
+</script>
+</body>
+</html>
